@@ -17,7 +17,7 @@ export const login = (req, res, next) => {
       next();
     })
     .catch(err => {
-      res.status(400).send({error: err && err.message || 'Invalid credentials'});
+      res.status(403).send({error: err && err.message || 'Invalid credentials'});
     });
   }
 }
