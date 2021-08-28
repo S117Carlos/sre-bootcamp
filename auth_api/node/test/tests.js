@@ -10,8 +10,8 @@ describe('loginFunction()', function () {
     connection.init();
   });
   it('Test login', function (done) {
-    loginFunction("admin", "secret").then(x => {
-      expect(x).to.be.equal("eyJhbGciOiJIUzI1NiJ9.YWRtaW4.jxjAJS_99b0l_21irrGWUOw_6RQsYqy1cT3DoIHil44");
+    loginFunction("admin", "secret").then(token => {
+      expect(token).to.be.equal("eyJhbGciOiJIUzI1NiJ9.YWRtaW4.jxjAJS_99b0l_21irrGWUOw_6RQsYqy1cT3DoIHil44");
       done();
     })
   });
@@ -32,8 +32,28 @@ describe('loginFunction()', function () {
 });
 
 describe('protectFunction()', function () {
-  it('Test protected', function () {
-
-    expect("You are under protected data").to.be.equal(protectFunction("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.StuYX978pQGnCeeaj2E1yBYwQvZIodyDTCJWXdsxBGI"));
+  let tokenData;
+  before(() => {
+      require('dotenv').config();
+      connection.init();
+      return loginFunction("admin", "secret").then(token => {
+        tokenData = token;
+        return;
+    });
+  });
+  it('Test protected', function (done) {
+    let auth = `Bearer: ${tokenData}`
+    protectFunction(auth)
+    .then(res => {
+      expect("You are under protected data").to.be.equal(res);
+      done();
+    }); 
+  });
+  it('Test protected - No token', function (done) {
+    protectFunction('')
+    .catch(err => {
+      expect("Unauthorized").to.be.equal(err.message);
+      done();
+    }); 
   });
 });
